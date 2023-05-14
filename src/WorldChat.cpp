@@ -57,7 +57,7 @@ std::string world_chat_GM_RANKS[4] =
 };
 
 /* BLIZZARD CHAT ICON FOR GM'S */
-std::string world_chat_GMIcon = "|TINTERFACE/CHATFRAME/UI-CHATICON-BLIZZ:13:13:0:-1|t";
+std::string world_chat_GMIcon = "|TINTERFACE/CHATFRAME/UI-CHATICON-BLIZZ:13:24:0:-1|t";
 
 /* COLORED TEXT FOR CURRENT FACTION || NOT FOR GMS */
 std::string world_chat_TeamIcon[2] =
@@ -241,15 +241,15 @@ public:
     {
         static std::vector<ChatCommand> wcCommandTable =
         {
-            { "on",      SEC_PLAYER,     false,     &HandleWorldChatOnCommand,      "" },
-            { "off",     SEC_PLAYER,     false,    &HandleWorldChatOffCommand,       "" },
+            //{ "on",      SEC_PLAYER,     false,     &HandleWorldChatOnCommand,      "" },
+            //{ "off",     SEC_PLAYER,     false,    &HandleWorldChatOffCommand,       "" },
             { "",        SEC_PLAYER,     false,    &HandleWorldChatCommand,       "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "chat", SEC_PLAYER, true, NULL , "" , wcCommandTable},
-            { "chath", SEC_MODERATOR, true, &HandleWorldChatHordeCommand , ""},
-            { "chata", SEC_MODERATOR, true, &HandleWorldChatAllianceCommand , ""},
+            { "world", SEC_PLAYER, true, NULL , "" , wcCommandTable},
+            { "worldh", SEC_MODERATOR, true, &HandleWorldChatHordeCommand , ""},
+            { "worlda", SEC_MODERATOR, true, &HandleWorldChatAllianceCommand , ""},
         };
         return commandTable;
     }
