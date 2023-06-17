@@ -84,11 +84,11 @@ public: WorldChat_Config() : WorldScript("WorldChat_Config") { };
     void OnBeforeConfigLoad(bool reload) override
     {
         if (!reload) {
-            WC_Config.Enabled = sConfigMgr->GetBoolDefault("World_Chat.Enable", true);
-            WC_Config.ChannelName = sConfigMgr->GetStringDefault("World_Chat.ChannelName", "World");
-            WC_Config.LoginState = sConfigMgr->GetBoolDefault("World_Chat.OnLogin.State", true);
-            WC_Config.CrossFaction = sConfigMgr->GetBoolDefault("World_Chat.CrossFactions", true);
-            WC_Config.Announce = sConfigMgr->GetBoolDefault("World_Chat.Announce", true);
+            WC_Config.Enabled = sConfigMgr->GetOption<bool>("World_Chat.Enable", true);
+            WC_Config.ChannelName = sConfigMgr->GetOption<std::string>("World_Chat.ChannelName", "World");
+            WC_Config.LoginState = sConfigMgr->GetOption<bool>("World_Chat.OnLogin.State", true);
+            WC_Config.CrossFaction = sConfigMgr->GetOption<bool>("World_Chat.CrossFactions", true);
+            WC_Config.Announce = sConfigMgr->GetOption<bool>("World_Chat.Announce", true);
         }
     }
 };
@@ -160,35 +160,35 @@ class World_Chat : public CommandScript
 public:
     World_Chat() : CommandScript("World_Chat") { }
 
-    static bool HandleWorldChatCommand(ChatHandler * pChat, const char * msg)
+    static bool HandleWorldChatCommand(ChatHandler * pChat, std::string msg)
     {
 
-        if (!*msg)
+        if (msg.empty())
             return false;
 
-        SendWorldMessage(pChat->GetSession()->GetPlayer(), msg, -1);
+        SendWorldMessage(pChat->GetSession()->GetPlayer(), msg.c_str(), -1);
 
         return true;
     }
 
-    static bool HandleWorldChatHordeCommand(ChatHandler * pChat, const char * msg)
+    static bool HandleWorldChatHordeCommand(ChatHandler * pChat, std::string msg)
     {
 
-        if (!*msg)
+        if (msg.empty())
             return false;
 
-        SendWorldMessage(pChat->GetSession()->GetPlayer(), msg, TEAM_HORDE);
+        SendWorldMessage(pChat->GetSession()->GetPlayer(), msg.c_str(), TEAM_HORDE);
 
         return true;
     }
 
-    static bool HandleWorldChatAllianceCommand(ChatHandler * pChat, const char * msg)
+    static bool HandleWorldChatAllianceCommand(ChatHandler * pChat, std::string msg)
     {
 
-        if (!*msg)
+        if (msg.empty())
             return false;
 
-        SendWorldMessage(pChat->GetSession()->GetPlayer(), msg, TEAM_ALLIANCE);
+        SendWorldMessage(pChat->GetSession()->GetPlayer(), msg.c_str(), TEAM_ALLIANCE);
 
         return true;
     }
@@ -220,7 +220,7 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         uint64 guid = player->GetGUID().GetCounter();
 
-        if (!sConfigMgr->GetBoolDefault("World_Chat.Enable", true)) {
+        if (!sConfigMgr->GetOption<bool>("World_Chat.Enable", true)) {
             ChatHandler(player->GetSession()).PSendSysMessage("[WC] %sWorld Chat System is disabled.|r", WORLD_CHAT_RED.c_str());
             return true;
         }
@@ -237,19 +237,13 @@ public:
         return true;
     };
 
-    std::vector<ChatCommand> GetCommands() const
+Acore::ChatCommands::ChatCommandTable GetCommands() const
     {
-        static std::vector<ChatCommand> wcCommandTable =
+        static Acore::ChatCommands::ChatCommandTable commandTable =
         {
-            //{ "on",      SEC_PLAYER,     false,     &HandleWorldChatOnCommand,      "" },
-            //{ "off",     SEC_PLAYER,     false,    &HandleWorldChatOffCommand,       "" },
-            { "",        SEC_PLAYER,     false,    &HandleWorldChatCommand,       "" },
-        };
-        static std::vector<ChatCommand> commandTable =
-        {
-            { "world", SEC_PLAYER, true, NULL , "" , wcCommandTable},
-            { "worldh", SEC_MODERATOR, true, &HandleWorldChatHordeCommand , ""},
-            { "worlda", SEC_MODERATOR, true, &HandleWorldChatAllianceCommand , ""},
+            { "world", HandleWorldChatCommand, SEC_PLAYER, Acore::ChatCommands::Console::No },
+            { "worldh", HandleWorldChatHordeCommand, SEC_MODERATOR, Acore::ChatCommands::Console::No },
+            { "worlda", HandleWorldChatAllianceCommand, SEC_MODERATOR, Acore::ChatCommands::Console::No }
         };
         return commandTable;
     }
